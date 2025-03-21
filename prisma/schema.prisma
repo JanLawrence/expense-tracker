@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  name          String
+  startingMoney Float      @default(0)
+  paySchedule   Json?      // bi-monthly, monthly, weekly, daiy, bi-weekly {sched: '', income_per_sched: {}}
+  avatar        Json?      // URL or path to avatar image
+  income        Float?     // Optional income field
+  expenses      Expense[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  sharedWith    Expense[]  @relation("SharedExpenses")
+}
+
+model PaymentMode {
+  id         Int        @id @default(autoincrement())
+  type       String     // "BANK", "CASH", "CREDIT"
+  name       String     // Custom name like "Wells Fargo Checking"
+  limit      Float?     // Credit limit if applicable
+  cutoffDate DateTime?  @db.Date
+  network    String?    // Visa/JCB/Mastercard etc.
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+
+model Expense {
+  id                 Int          @id @default(autoincrement())
+  userId             User         @relation(fields: [userId], references: [id])
+  categoryId         Category     @relation(fields: [categoryId], references: [id])
+  paymentModeId      PaymentMode  @relation(fields: [paymentModeId], references: [id])
+  description        String
+  remarks            String?
+  amount             Float
+  shareAmount        Float?       // amount if shared is true
+  isShared           Boolean      @default(false)
+  isPaidShared       Boolean      @default(false)
+  date               DateTime     @default(now())
+  isRecurring        Boolean      @default(false)
+  recurringStartDate DateTime?    @db.Date
+  recurringEndDate   DateTime?    @db.Date
+  recurringFrequency String?      @default('MONTHLY')// "DAILY", "WEEKLY", "MONTHLY", "YEARLY"
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
