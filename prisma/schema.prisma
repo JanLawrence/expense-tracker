@@ -15,52 +15,86 @@ datasource db {
 
 model User {
   id            Int        @id @default(autoincrement())
-  name          String
+  firstName     String
+  middleName    String
+  lastName      String
+  contactNo     String
   startingMoney Float      @default(0)
   paySchedule   Json?      // bi-monthly, monthly, weekly, daiy, bi-weekly {sched: '', income_per_sched: {}}
   avatar        Json?      // URL or path to avatar image
   income        Float?     // Optional income field
   expenses      Expense[]
+  paymentMode   PaymentMode[]
+  auth          UserAuth?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  sharedWith    Expense[]  @relation("SharedExpenses")
+  deletedAt     DateTime?
+}
+
+model UserAuth {
+  id                Int          @id @default(autoincrement())
+  email             String       @unique
+  password          String       // Hashed password
+  salt              String       // Random salt for password hashing
+  resetToken        String?      // For password reset functionality
+  resetTokenExpiry  DateTime?    
+  isEmailVerified   Boolean      @default(false)
+  verificationToken String?      // For email verification
+  lastLogin         DateTime?
+  userId            Int          @unique      // Foreign key to User table
+  user              User         @relation(fields: [userId], references: [id])
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
 }
 
 model PaymentMode {
-  id         Int        @id @default(autoincrement())
-  type       String     // "BANK", "CASH", "CREDIT"
-  name       String     // Custom name like "Wells Fargo Checking"
-  limit      Float?     // Credit limit if applicable
-  cutoffDate DateTime?  @db.Date
-  network    String?    // Visa/JCB/Mastercard etc.
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id           Int        @id @default(autoincrement())
+  userId       Int          
+  user         User       @relation(fields: [userId], references: [id])
+  type         String     // "BANK", "CASH", "CREDIT"
+  name         String     // Custom name like "Wells Fargo Checking"
+  creditLimit  Float?     // Credit limit if applicable
+  cutoffDate   DateTime?  @db.Date
+  network      String?    // Visa/JCB/Mastercard etc.
+  color        String?
+  expenses     Expense[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
 }
 
 model Category {
   id        Int       @id @default(autoincrement())
   name      String    @unique
+  expenses  Expense[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }
 
 
 model Expense {
   id                 Int          @id @default(autoincrement())
-  userId             User         @relation(fields: [userId], references: [id])
-  categoryId         Category     @relation(fields: [categoryId], references: [id])
-  paymentModeId      PaymentMode  @relation(fields: [paymentModeId], references: [id])
+  userId             Int          
+  user               User         @relation(fields: [userId], references: [id])
+  categoryId         Int          
+  category           Category     @relation(fields: [categoryId], references: [id])
+  paymentModeId      Int
+  paymentMode        PaymentMode  @relation(fields: [paymentModeId], references: [id])
   description        String
   remarks            String?
   amount             Float
   shareAmount        Float?       // amount if shared is true
   isShared           Boolean      @default(false)
+  showOnReport       Boolean      @default(true)
   isPaidShared       Boolean      @default(false)
   date               DateTime     @default(now())
   isRecurring        Boolean      @default(false)
   recurringStartDate DateTime?    @db.Date
   recurringEndDate   DateTime?    @db.Date
-  recurringFrequency String?      @default('MONTHLY')// "DAILY", "WEEKLY", "MONTHLY", "YEARLY"
+  recurringFrequency String?      
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
+  deletedAt          DateTime?
 }
