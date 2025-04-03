@@ -3,7 +3,7 @@ const prisma = new PrismaClient();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const authService = require('../services/auth.service');
+// const authService = require('../services/auth.service');
 
 exports.register = async (req, res, next) => {
   try {

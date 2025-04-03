@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const expenseController = require('../controllers/expense.controller');
 const { authenticate } = require('../middleware/auth.middleware');
-const { validateExpense } = require('../middleware/validation.middleware');
+const { validateExpense } = require('../middleware/validation.middleware.js');
 
 // Apply authentication to all expense routes
 router.use(authenticate);
