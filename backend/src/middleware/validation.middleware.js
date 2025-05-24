@@ -51,6 +51,7 @@ exports.validateLogin = [
 ];
 
 // Expense validation
+// Expense validation
 exports.validateExpense = [
   body('categoryId')
     .isInt()
@@ -78,9 +79,9 @@ exports.validateExpense = [
     .withMessage('isShared must be a boolean value')
     .toBoolean(),
   body('shareAmount')
-    .optional()
+    .if(body('isShared').equals(true))
     .isFloat({ min: 0.01 })
-    .withMessage('Share amount must be a positive number')
+    .withMessage('Share amount must be a positive number when expense is shared')
     .toFloat(),
   body('isPaidShared')
     .optional()
@@ -98,17 +99,23 @@ exports.validateExpense = [
     .withMessage('isRecurring must be a boolean value')
     .toBoolean(),
   body('recurringStartDate')
-    .optional()
+    .if(body('isRecurring').equals(true))
     .isISO8601()
-    .withMessage('Recurring start date must be valid ISO format'),
+    .withMessage('Recurring start date is required and must be valid ISO format when expense is recurring'),
   body('recurringEndDate')
+    .if(body('isRecurring').equals(true))
     .optional()
     .isISO8601()
     .withMessage('Recurring end date must be valid ISO format'),
   body('recurringFrequency')
+    .if(body('isRecurring').equals(true))
+    .isIn(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'])
+    .withMessage('Recurring frequency is required and must be DAILY, WEEKLY, MONTHLY, or YEARLY when expense is recurring'),
+  body('remarks')
     .optional()
-    .isIn(['daily', 'weekly', 'monthly', 'yearly'])
-    .withMessage('Recurring frequency must be daily, weekly, monthly, or yearly'),
+    .isString()
+    .withMessage('Remarks must be a string')
+    .trim(),
   validate
 ];
 

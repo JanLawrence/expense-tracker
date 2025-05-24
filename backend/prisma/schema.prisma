@@ -18,7 +18,7 @@ model User {
   firstName     String
   middleName    String
   lastName      String
-  contactNo     String    
+  contactNo     String?    
   countryCode   String     @default("PH")
   startingMoney Float      @default(0)
   paySchedule   Json?      // bi-monthly, monthly, weekly, daiy, bi-weekly {sched: '', income_per_sched: {}}

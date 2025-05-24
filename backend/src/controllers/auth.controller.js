@@ -112,7 +112,12 @@ exports.login = async (req, res, next) => {
       user: {
         id: auth.user.id,
         firstName: auth.user.firstName,
+        middleName: auth.user.middleName,
         lastName: auth.user.lastName,
+        countryCode: auth.user.countryCode,
+        contactNo: auth.user.contactNo,
+        startingMoney: auth.user.startingMoney,
+        paySchedule: auth.user.paySchedule,
         email: auth.email
       }
     });

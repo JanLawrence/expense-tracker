@@ -54,7 +54,7 @@ exports.getCurrentUser = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     const { userId } = req.user;
-    const { firstName, middleName, lastName, countryCode, income, paySchedule, avatar } = req.body;
+    const { firstName, middleName, lastName, countryCode, contactNo, income, paySchedule, avatar } = req.body;
     
     const updatedUser = await prisma.user.update({
       where: {
