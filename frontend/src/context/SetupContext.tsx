@@ -86,7 +86,7 @@ export function SetupProvider({ children }: { children: ReactNode }) {
       const newStatus = {
         hasStartingMoney: userData.startingMoney > 0,
         hasPaySchedule: !!userData.paySchedule,
-        hasCategories: Array.isArray(userData.paymentMode) && userData.paymentMode.length > 1, // Assuming there's already the default Cash payment mode
+        hasCategories: userData._count.paymentMode > 0, // Assuming there's already the default Cash payment mode
         isComplete: false,
       };
       

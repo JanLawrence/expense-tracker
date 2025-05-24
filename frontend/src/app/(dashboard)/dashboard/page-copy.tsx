@@ -81,14 +81,6 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Dashboard</h2>
-      </div>
-    </>
-  );
-
-  return (
     <div className="min-h-screen bg-gray-100">
       {/* Setup Modal - Will automatically display if setup is incomplete */}
       <SetupModal />

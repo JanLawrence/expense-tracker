@@ -15,6 +15,7 @@ exports.getCurrentUser = async (req, res, next) => {
         firstName: true,
         middleName: true,
         lastName: true,
+        countryCode: true,
         contactNo: true,
         startingMoney: true,
         income: true,
@@ -26,6 +27,15 @@ exports.getCurrentUser = async (req, res, next) => {
             email: true,
             isEmailVerified: true,
             lastLogin: true
+          }
+        },
+        _count: {
+          select: {
+            paymentMode: {
+              where: {
+                deletedAt: null // Only count non-deleted payment modes
+              }
+            }
           }
         }
       }
@@ -44,7 +54,7 @@ exports.getCurrentUser = async (req, res, next) => {
 exports.updateProfile = async (req, res, next) => {
   try {
     const { userId } = req.user;
-    const { firstName, middleName, lastName, contactNo, income, paySchedule, avatar } = req.body;
+    const { firstName, middleName, lastName, countryCode, income, paySchedule, avatar } = req.body;
     
     const updatedUser = await prisma.user.update({
       where: {
@@ -55,6 +65,7 @@ exports.updateProfile = async (req, res, next) => {
         middleName: middleName || undefined,
         lastName: lastName || undefined,
         contactNo: contactNo || undefined,
+        countryCode: countryCode || undefined,
         income: income !== undefined ? parseFloat(income) : undefined,
         paySchedule: paySchedule || undefined,
         avatar: avatar || undefined
@@ -65,6 +76,7 @@ exports.updateProfile = async (req, res, next) => {
         middleName: true,
         lastName: true,
         contactNo: true,
+        countryCode: true,
         startingMoney: true,
         income: true,
         paySchedule: true,

@@ -106,7 +106,7 @@ export default function Pagination({
                 <button
                   className={`px-3 py-1 rounded-md text-sm font-medium ${
                     currentPage === page
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-primary text-white'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`}
                   onClick={() => onPageChange(page)}

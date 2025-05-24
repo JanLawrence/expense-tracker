@@ -1,18 +1,47 @@
+
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --page-bg: #f6f6f6;
+  --page-bg-dark: #13141a;
+  --header-height: 58px;
+  --primary: #0f499b;
+
+    /* Define the entire primary color scale for potential JavaScript usage */
+  --primary-50: #f0f7ff;
+  --primary-100: #e0f0ff;
+  --primary-200: #c7e0fc;
+  --primary-300: #a5ccf9;
+  --primary-400: #7db2f6;
+  --primary-500: #5990f0;
+  --primary-600: #3b68e5;
+  --primary-700: #2d50cc;
+  --primary-800: pink;
+  --primary-900: #233b82;
+  --primary-950: #0f499b;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter); /* Updated from --font-geist-sans */
   --font-mono: var(--font-roboto-mono); /* Updated from --font-geist-mono */
+  --color-primary-50: var(--primary-50);
+  --color-primary-100: var(--primary-100);
+  --color-primary-200: var(--primary-200);
+  --color-primary-300: var(--primary-300);
+  --color-primary-400: var(--primary-400);
+  --color-primary-500: var(--primary-500);
+  --color-primary-600: var(--primary-600);
+  --color-primary-700: var(--primary-700);
+  --color-primary-800: var(--primary-800);
+  --color-primary-900: var(--primary-900);
+  --color-primary-950: var(--primary-950);
 }
-/* 
-@media (prefers-color-scheme: dark) {
+
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
@@ -20,7 +49,20 @@
 } */
 
 body {
-  background: var(--background);
+  font-size: 13px;
+  background: var(--page-bg);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif; 
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.bg-primary {
+  background-color: var(--primary);
+}
+
+.border-primary {
+  border-color: var(--primary);
 }

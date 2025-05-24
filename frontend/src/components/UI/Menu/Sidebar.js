@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { 
@@ -13,7 +15,7 @@ export default function Sidebar({
   onClose = () => {},
   footer = null,
   avatarSection = null,
-  theme = 'dark', // 'dark', 'light'
+  theme = 'light', // 'dark', 'light'
   className = ''
 }) {
   const [expandedItems, setExpandedItems] = useState([]);
@@ -50,7 +52,7 @@ export default function Sidebar({
       {/* Mobile Backdrop */}
       {isOpen && (
         <div 
-          className="fixed inset-0 z-20 bg-black bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-30 bg-black bg-opacity-20 lg:hidden"
           onClick={onClose}
         ></div>
       )}

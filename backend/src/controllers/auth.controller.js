@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 exports.register = async (req, res, next) => {
   try {
-    const { email, password, firstName, middleName, lastName, contactNo } = req.body;
+    const { email, password, firstName, middleName, lastName, contactNo, countryCode } = req.body;
     
     // Check if user already exists
     const existingUser = await prisma.userAuth.findUnique({
@@ -31,6 +31,7 @@ exports.register = async (req, res, next) => {
           middleName,
           lastName,
           contactNo,
+          countryCode,
           startingMoney: 0
         }
       });

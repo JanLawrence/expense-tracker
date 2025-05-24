@@ -13,7 +13,9 @@ export default function Avatar({
       sm: 'h-8 w-8 text-sm',
       md: 'h-10 w-10 text-base',
       lg: 'h-12 w-12 text-lg',
-      xl: 'h-16 w-16 text-xl'
+      xl: 'h-16 w-16 text-xl',
+      xxl: 'h-20 w-20 text-2xl',
+      xxxl: 'h-30 w-30 text-3xl'
     };
     
     const shapeClasses = {

@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 
 export default function Button({
   children,
@@ -12,6 +13,10 @@ export default function Button({
   iconPosition = 'left',
   fullWidth = false,
   loading = false,
+  href = null,
+  as = null,
+  target = null,
+  replace = false,
   ...props
 }) {
   const baseStyles = 'inline-flex items-center justify-center font-medium rounded-md focus:outline-none transition-colors';
@@ -25,7 +30,7 @@ export default function Button({
   };
   
   const variantStyles = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2',
+    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
     secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2',
     success: 'bg-green-600 text-white hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
     danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2',
@@ -33,28 +38,24 @@ export default function Button({
     info: 'bg-blue-500 text-white hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
     light: 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300',
     dark: 'bg-gray-800 text-white hover:bg-gray-900 focus:ring-2 focus:ring-gray-800 focus:ring-offset-2',
-    link: 'bg-transparent text-indigo-600 hover:text-indigo-800 hover:underline p-0',
-    outline: 'bg-transparent border border-indigo-600 text-indigo-600 hover:bg-indigo-50'
+    link: 'bg-transparent text-primary-600 hover:text-primary-800 hover:underline p-0',
+    outline: 'bg-transparent border border-primary-600 text-primary-600 hover:bg-primary-50'
   };
   
   const disabledStyles = 'opacity-50 cursor-not-allowed';
   const fullWidthStyles = 'w-full';
   
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || loading}
-      className={`
-        ${baseStyles}
-        ${sizeStyles[size]}
-        ${variantStyles[variant]}
-        ${disabled ? disabledStyles : ''}
-        ${fullWidth ? fullWidthStyles : ''}
-        ${className}
-      `}
-      {...props}
-    >
+  const allClassNames = `
+    ${baseStyles}
+    ${sizeStyles[size]}
+    ${variantStyles[variant]}
+    ${disabled ? disabledStyles : ''}
+    ${fullWidth ? fullWidthStyles : ''}
+    ${className}
+  `;
+  
+  const buttonContent = (
+    <>
       {loading && (
         <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -64,6 +65,42 @@ export default function Button({
       {icon && iconPosition === 'left' && !loading && <span className="mr-2">{icon}</span>}
       {children}
       {icon && iconPosition === 'right' && <span className="ml-2">{icon}</span>}
+    </>
+  );
+  
+  // If href is provided, render as a Next.js Link
+  if (href && !disabled) {
+    return (
+      <Link 
+        href={href}
+        as={as}
+        replace={replace}
+        {...props}
+        passHref
+        legacyBehavior
+      >
+        <a 
+          className={allClassNames}
+          onClick={onClick}
+          target={target}
+          rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+        >
+          {buttonContent}
+        </a>
+      </Link>
+    );
+  }
+  
+  // Otherwise render as a regular button
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={allClassNames}
+      {...props}
+    >
+      {buttonContent}
     </button>
   );
 }

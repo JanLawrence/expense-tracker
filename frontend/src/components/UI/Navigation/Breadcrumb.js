@@ -18,7 +18,7 @@ export default function Breadcrumb({
             )}
             
             {index === items.length - 1 ? (
-              <span className="text-gray-500 text-sm font-medium">
+              <span className="text-gray-500 text-xs font-medium">
                 {index === 0 && homeIcon ? (
                   <span className="flex items-center">
                     <Home size={16} className="mr-1" /> {item.label}
@@ -28,9 +28,14 @@ export default function Breadcrumb({
                 )}
               </span>
             ) : (
+              item?.disabled ? 
+                <span className="text-gray-500 text-xs font-medium">
+                    {item.label}
+                </span>
+              :
               <Link 
                 href={item.href} 
-                className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                className="text-primary-600 hover:text-primary-900 text-xs font-medium"
               >
                 {index === 0 && homeIcon ? (
                   <span className="flex items-center">
