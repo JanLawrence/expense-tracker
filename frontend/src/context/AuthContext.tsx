@@ -4,11 +4,23 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
+interface PaySchedule {
+  schedule: 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'bi-monthly';
+  incomePerSchedule: number;
+  nextPayDate: string; // or Date
+  // other relevant fields
+}
+
 // Define types for our context
 interface User {
   id: string;
   firstName: string;
+  middleName: string;
   lastName: string;
+  countryCode: string;
+  contactNo: string;
+  startingMoney: number;
+  paySchedule: PaySchedule;
   email: string;
 }
 

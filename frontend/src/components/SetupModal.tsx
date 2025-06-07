@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSetupContext } from '@/context/SetupContext';
 import { useAuthContext } from '@/context/AuthContext';
+import { useCurrency } from '@/hooks/useCurrency';
 import CategoryManagement from './CategoryManagement';
 import paymentModeAPI from '@/services/paymentModeAPI';
 
@@ -13,6 +14,17 @@ const payScheduleOptions = [
   { value: "bi-weekly", label: "Bi-weekly" },
   { value: "monthly", label: "Monthly" },
   { value: "bi-monthly", label: "Bi-monthly" }
+];
+
+// Days of the week for weekly/bi-weekly schedules
+const daysOfWeek = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" }
 ];
 
 // Define a simple category for payment modes
@@ -37,11 +49,13 @@ const defaultCategories: Category[] = [
 const SetupModal = () => {
   const { setupStatus, showSetupModal, setShowSetupModal, updateStartingMoney, updatePaySchedule, updateCategories, completeSetup } = useSetupContext();
   const { user } = useAuthContext();
+  const { currency, formatAmount, getCurrencySymbol, getCurrencyCode } = useCurrency();
   const [currentStep, setCurrentStep] = useState(1);
   
   const [startingMoney, setStartingMoney] = useState('0');
   const [paySchedule, setPaySchedule] = useState('monthly');
   const [incomeAmount, setIncomeAmount] = useState('');
+  const [payDays, setPayDays] = useState<number[]>([15]); // Default to 15th for monthly
   const [selectedCategories, setSelectedCategories] = useState<Category[]>([]);
   const [addCategories, setAddCategories] = useState(true);
   
@@ -52,6 +66,49 @@ const SetupModal = () => {
   if (!showSetupModal) return null;
 
   const totalSteps = 4;
+
+  // Handle pay schedule change and update default payDays
+  const handlePayScheduleChange = (newSchedule: string) => {
+    setPaySchedule(newSchedule);
+    
+    // Set default payDays based on schedule
+    switch (newSchedule) {
+      case 'daily':
+        setPayDays([]); // No specific days for daily
+        break;
+      case 'weekly':
+        setPayDays([5]); // Default to Friday
+        break;
+      case 'bi-weekly':
+        setPayDays([5]); // Default to Friday
+        break;
+      case 'monthly':
+        setPayDays([15]); // Default to 15th
+        break;
+      case 'bi-monthly':
+        setPayDays([15, 30]); // Default to 15th and 30th
+        break;
+      default:
+        setPayDays([]);
+    }
+  };
+
+  // Handle pay day selection
+  const handlePayDayChange = (day: number, checked: boolean) => {
+    if (checked) {
+      if (paySchedule === 'bi-monthly') {
+        // For bi-monthly, allow max 2 days
+        if (payDays.length < 2) {
+          setPayDays([...payDays, day].sort((a, b) => a - b));
+        }
+      } else {
+        // For other schedules, replace or add
+        setPayDays([day]);
+      }
+    } else {
+      setPayDays(payDays.filter(d => d !== day));
+    }
+  };
 
   // Validate starting money (Step 1)
   const validateStartingMoney = () => {
@@ -87,6 +144,22 @@ const SetupModal = () => {
       setErrors({ incomeAmount: "Please enter a valid positive number" });
       return false;
     }
+
+    // Validate payDays based on schedule
+    if (paySchedule === 'bi-monthly' && payDays.length !== 2) {
+      setErrors({ payDays: "Please select exactly 2 days for bi-monthly schedule" });
+      return false;
+    }
+    
+    if ((paySchedule === 'weekly' || paySchedule === 'bi-weekly') && payDays.length !== 1) {
+      setErrors({ payDays: "Please select a day of the week" });
+      return false;
+    }
+    
+    if (paySchedule === 'monthly' && payDays.length !== 1) {
+      setErrors({ payDays: "Please select a day of the month" });
+      return false;
+    }
     
     setErrors({});
     return true;
@@ -118,7 +191,8 @@ const SetupModal = () => {
           setIsLoading(true);
           const scheduleData = {
             schedule: paySchedule,
-            incomePerSchedule: parseFloat(incomeAmount)
+            incomePerSchedule: parseFloat(incomeAmount),
+            payDays: payDays
           };
           const success = await updatePaySchedule(scheduleData);
           setIsLoading(false);
@@ -206,6 +280,93 @@ const SetupModal = () => {
     setShowSetupModal(false);
   };
 
+  // Render pay days selection based on schedule
+  const renderPayDaysSelection = () => {
+    if (paySchedule === 'daily') {
+      return (
+        <div className="text-sm text-gray-600">
+          Income will be recorded daily
+        </div>
+      );
+    }
+
+    if (paySchedule === 'weekly' || paySchedule === 'bi-weekly') {
+      return (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Day of the Week
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {daysOfWeek.map(day => (
+              <label key={day.value} className="flex items-center">
+                <input
+                  type="radio"
+                  name="dayOfWeek"
+                  value={day.value}
+                  checked={payDays.includes(day.value)}
+                  onChange={(e) => handlePayDayChange(day.value, e.target.checked)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">{day.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (paySchedule === 'monthly') {
+      return (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Day of the Month
+          </label>
+          <select
+            value={payDays[0] || ''}
+            onChange={(e) => setPayDays([parseInt(e.target.value)])}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          >
+            {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+              <option key={day} value={day}>
+                {day}{day === 1 ? 'st' : day === 2 ? 'nd' : day === 3 ? 'rd' : 'th'}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    }
+
+    if (paySchedule === 'bi-monthly') {
+      return (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Days of the Month (Select 2)
+          </label>
+          <div className="grid grid-cols-4 gap-2 max-h-32 overflow-y-auto">
+            {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+              <label key={day} className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={payDays.includes(day)}
+                  onChange={(e) => handlePayDayChange(day, e.target.checked)}
+                  disabled={!payDays.includes(day) && payDays.length >= 2}
+                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                />
+                <span className="ml-1 text-sm text-gray-700">{day}</span>
+              </label>
+            ))}
+          </div>
+          <div className="mt-2 text-xs text-gray-500">
+            Selected: {payDays.sort((a, b) => a - b).join(', ')} 
+            {payDays.length < 2 && ` (${2 - payDays.length} more needed)`}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   // Render different step content
   const renderStepContent = () => {
     switch (currentStep) {
@@ -224,7 +385,7 @@ const SetupModal = () => {
                 </label>
                 <div className="relative mt-1 rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">₱</span>
+                    <span className="text-gray-500 sm:text-sm">{getCurrencySymbol()}</span>
                   </div>
                   <input
                     type="text"
@@ -239,7 +400,7 @@ const SetupModal = () => {
                     placeholder="0.00"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">PHP</span>
+                    <span className="text-gray-500 sm:text-sm">{getCurrencyCode()}</span>
                   </div>
                 </div>
                 {errors.startingMoney && (
@@ -255,7 +416,7 @@ const SetupModal = () => {
           <div className="mb-6">
             <h3 className="text-lg font-medium text-gray-900 mb-3">Set Your Income Details</h3>
             <p className="text-sm text-gray-600 mb-4">
-              Please select how often you receive your income and the amount you receive per pay period.
+              Please select how often you receive your income, the amount you receive per pay period, and when you get paid.
             </p>
             
             <div className="space-y-4">
@@ -266,7 +427,7 @@ const SetupModal = () => {
                 <select
                   value={paySchedule}
                   onChange={(e) => {
-                    setPaySchedule(e.target.value);
+                    handlePayScheduleChange(e.target.value);
                     if (errors.paySchedule) setErrors({});
                   }}
                   className={`w-full px-3 py-2 border ${
@@ -290,7 +451,7 @@ const SetupModal = () => {
                 </label>
                 <div className="relative mt-1 rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">₱</span>
+                    <span className="text-gray-500 sm:text-sm">{getCurrencySymbol()}</span>
                   </div>
                   <input
                     type="text"
@@ -305,11 +466,19 @@ const SetupModal = () => {
                     placeholder="0.00"
                   />
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <span className="text-gray-500 sm:text-sm">PHP</span>
+                    <span className="text-gray-500 sm:text-sm">{getCurrencyCode()}</span>
                   </div>
                 </div>
                 {errors.incomeAmount && (
                   <p className="mt-1 text-sm text-red-600">{errors.incomeAmount}</p>
+                )}
+              </div>
+
+              {/* Pay Days Selection */}
+              <div>
+                {renderPayDaysSelection()}
+                {errors.payDays && (
+                  <p className="mt-1 text-sm text-red-600">{errors.payDays}</p>
                 )}
               </div>
             </div>
@@ -384,8 +553,12 @@ const SetupModal = () => {
                   <h3 className="text-sm font-medium text-green-800">Your profile is ready</h3>
                   <div className="mt-2 text-sm text-green-700">
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Starting balance: ${parseFloat(startingMoney).toFixed(2)}</li>
+                      <li>Starting balance: {formatAmount(parseFloat(startingMoney))}</li>
                       <li>Pay schedule: {paySchedule.charAt(0).toUpperCase() + paySchedule.slice(1)}</li>
+                      <li>Pay days: {paySchedule === 'daily' ? 'Every day' : 
+                          paySchedule === 'weekly' || paySchedule === 'bi-weekly' 
+                            ? daysOfWeek.find(d => d.value === payDays[0])?.label 
+                            : payDays.join(', ')}</li>
                       <li>
                         {addCategories
                           ? `Categories: ${selectedCategories.length} selected`

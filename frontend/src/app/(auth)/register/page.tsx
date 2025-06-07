@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthContext } from '@/context/AuthContext';
+import CountrySelector from '@/components/Standard/CountriesSelector';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function RegisterPage() {
     lastName: '',
     email: '',
     contactNo: '',
+    countryCode: 'PH', // Default to Philippines
     password: '',
     confirmPassword: '',
   });
@@ -30,6 +32,19 @@ export default function RegisterPage() {
       setFormErrors(prev => {
         const newErrors = { ...prev };
         delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleCountryChange = (countryCode: string) => {
+    setFormData(prev => ({ ...prev, countryCode }));
+    
+    // Clear country error if it exists
+    if (formErrors.countryCode) {
+      setFormErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.countryCode;
         return newErrors;
       });
     }
@@ -52,8 +67,12 @@ export default function RegisterPage() {
       errors.email = 'Email is invalid';
     }
     
-    if (!formData.contactNo.trim()) {
-      errors.contactNo = 'Contact number is required';
+    // if (!formData.contactNo.trim()) {
+    //   errors.contactNo = 'Contact number is required';
+    // }
+    
+    if (!formData.countryCode) {
+      errors.countryCode = 'Please select your country';
     }
     
     if (!formData.password) {
@@ -109,6 +128,7 @@ export default function RegisterPage() {
         lastName: '',
         email: '',
         contactNo: '',
+        countryCode: 'PH',
         password: '',
         confirmPassword: '',
       });
@@ -175,7 +195,7 @@ export default function RegisterPage() {
         
         {/* Registration Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+          <div className="">
             {/* Name Fields - First Row */}
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
@@ -258,7 +278,7 @@ export default function RegisterPage() {
             
             <div className="mb-4">
               <label htmlFor="contactNo" className="block text-sm font-medium text-gray-700 mb-1">
-                Contact Number <span className="text-red-500">*</span>
+                Contact Number
               </label>
               <input
                 id="contactNo"
@@ -274,6 +294,20 @@ export default function RegisterPage() {
               {formErrors.contactNo && (
                 <p className="mt-1 text-sm text-red-600">{formErrors.contactNo}</p>
               )}
+            </div>
+
+            {/* Country Selector */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Country <span className="text-red-500">*</span>
+              </label>
+              <CountrySelector
+                value={formData.countryCode}
+                onChange={handleCountryChange}
+                error={formErrors.countryCode}
+                placeholder="Select your country"
+                required
+              />
             </div>
             
             {/* Password Fields - Fourth Row */}

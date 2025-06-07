@@ -41,12 +41,13 @@ exports.getCategoryById = async (req, res, next) => {
 
 exports.createCategory = async (req, res, next) => {
   try {
-    const { name, color } = req.body;
+    const { name, type, color } = req.body;
     
     // Check if category with same name exists
     const existingCategory = await prisma.category.findFirst({
       where: {
         name,
+        type,
         deletedAt: null
       }
     });
@@ -58,6 +59,7 @@ exports.createCategory = async (req, res, next) => {
     const category = await prisma.category.create({
       data: {
         name,
+        type,
         color: color || '#000000'
       }
     });
@@ -74,7 +76,7 @@ exports.createCategory = async (req, res, next) => {
 exports.updateCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, type } = req.body;
     
     // Check if category exists
     const existingCategory = await prisma.category.findFirst({
@@ -93,6 +95,7 @@ exports.updateCategory = async (req, res, next) => {
       const nameConflict = await prisma.category.findFirst({
         where: {
           name,
+          type,
           deletedAt: null,
           id: {
             not: parseInt(id)

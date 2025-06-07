@@ -8,7 +8,7 @@ export default function OffCanvas({
   children,
   title = '',
   position = 'right', // 'right', 'left', 'top', 'bottom'
-  size = 'md', // 'sm', 'md', 'lg', 'xl', 'full'
+  size = 'md', // 'sm', 'md', 'lg', 'xl', 'xxl', 'full'
   mobilePosition = '', // Override position on mobile if needed
   mobileSize = '', // Override size on mobile if needed
   mobileFullscreen = false, // Force fullscreen on mobile
@@ -126,6 +126,7 @@ export default function OffCanvas({
         md: isMobile ? 'w-4/5' : 'w-80',
         lg: isMobile ? 'w-5/6' : 'w-96',
         xl: isMobile ? 'w-11/12' : 'w-1/3',
+        xxl: isMobile ? 'w-full' : 'w-1/2',
         full: 'w-full',
       },
       left: {
@@ -133,6 +134,7 @@ export default function OffCanvas({
         md: isMobile ? 'w-4/5' : 'w-80',
         lg: isMobile ? 'w-5/6' : 'w-96',
         xl: isMobile ? 'w-11/12' : 'w-1/3',
+        xxl: isMobile ? 'w-full' : 'w-1/2',
         full: 'w-full',
       },
       top: {
@@ -140,6 +142,7 @@ export default function OffCanvas({
         md: isMobile ? 'h-1/3' : 'h-1/4',
         lg: isMobile ? 'h-1/2' : 'h-1/3',
         xl: isMobile ? 'h-3/4' : 'h-1/2',
+        xxl: isMobile ? 'h-5/6' : 'h-3/4',
         full: 'h-full',
       },
       bottom: {
@@ -147,6 +150,7 @@ export default function OffCanvas({
         md: isMobile ? 'h-1/3' : 'h-1/4',
         lg: isMobile ? 'h-1/2' : 'h-1/3',
         xl: isMobile ? 'h-3/4' : 'h-1/2',
+        xxl: isMobile ? 'h-5/6' : 'h-3/4',
         full: 'h-full',
       },
       full: {
@@ -154,6 +158,7 @@ export default function OffCanvas({
         md: 'w-full h-full',
         lg: 'w-full h-full',
         xl: 'w-full h-full',
+        xxl: 'w-full h-full',
         full: 'w-full h-full',
       },
     };
@@ -232,13 +237,13 @@ export default function OffCanvas({
         className={`
           fixed ${getPositionClass()} ${getSizeClass()}
           ${getTransformClass()}
-          bg-white shadow-lg overflow-hidden
+          bg-white shadow-lg overflow-hidden flex flex-col
           ${isFullScreen ? 'rounded-none' : ''}
           ${className}
         `}
       >
         {/* Header */}
-        <div className={`flex items-center justify-between px-4 py-3 border-b border-gray-200 ${headerClassName}`}>
+        <div className={`flex items-center justify-between px-4 py-3 border-b border-gray-200 flex-shrink-0 ${headerClassName}`}>
           <h3 className={`${titleClass} font-medium text-gray-900`}>{title}</h3>
           {showCloseButton && (
             <button
@@ -255,9 +260,7 @@ export default function OffCanvas({
         
         {/* Body */}
         <div className={`
-          ${isHorizontal && !isFullScreen ? 'h-[calc(100%-4rem)]' : ''}
-          ${isFullScreen ? 'flex-grow overflow-auto' : ''}
-          overflow-y-auto p-4 
+          flex-1 overflow-y-auto p-4 
           ${bodyClassName}
         `}>
           {children}
@@ -265,7 +268,7 @@ export default function OffCanvas({
         
         {/* Footer */}
         {renderFooter && (
-          <div className="border-t border-gray-200 px-4 py-3 bg-gray-50">
+          <div className="border-t border-gray-200 px-4 py-3 bg-gray-50 flex-shrink-0">
             {renderFooter}
           </div>
         )}

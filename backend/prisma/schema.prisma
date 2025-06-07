@@ -68,6 +68,7 @@ model PaymentMode {
 model Category {
   id        Int       @id @default(autoincrement())
   name      String    @unique
+  type      String    @default("expense") // "expense", "savings" 
   color     String?
   expenses  Expense[]
   createdAt DateTime  @default(now())

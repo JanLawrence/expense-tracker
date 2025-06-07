@@ -4,9 +4,11 @@ import React, { createContext, useContext, ReactNode, useState, useEffect } from
 import { useAuthContext } from './AuthContext';
 
 // Define types based on your Prisma model
+
 interface PaySchedule {
-  schedule: string; // bi-monthly, monthly, weekly, daily, bi-weekly
+  schedule: 'daily' | 'weekly' | 'bi-weekly' | 'monthly' | 'bi-monthly';
   incomePerSchedule: number;
+  payDays: number[];
 }
 
 interface Avatar {
@@ -177,7 +179,7 @@ export function SetupProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Update pay schedule
+  // Update paySchedule
   const updatePaySchedule = async (schedule: PaySchedule) => {
     if (!isAuthenticated || !user) return false;
     
@@ -201,7 +203,8 @@ export function SetupProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ 
           paySchedule: {
             schedule: schedule.schedule,
-            incomePerSchedule: schedule.incomePerSchedule
+            incomePerSchedule: schedule.incomePerSchedule,
+            payDays: schedule.payDays
           },
           income: schedule.incomePerSchedule
         }),

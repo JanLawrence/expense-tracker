@@ -2,7 +2,7 @@
 
 import Sidebar from "@/components/UI/Menu/Sidebar";
 import Navbar from "@/components/UI/Menu/Navbar";
-import { Home, BanknoteArrowDown, Settings, Bell, ChartColumnStacked } from 'lucide-react';
+import { Home, BanknoteArrowDown, Settings, Bell, ChartColumnStacked, CreditCard } from 'lucide-react';
 import IconSidebar from "@/components/UI/Menu/IconSidebar";
 import { useAuthContext } from '@/context/AuthContext';
 import { useSetupContext } from '@/context/SetupContext';
@@ -39,8 +39,14 @@ export default function Container({ children }: { children: React.ReactNode }) {
     { 
       icon: <ChartColumnStacked size={22} />, 
       label: 'Categories', 
-      href: '/category', 
-      active: pathname === '/category' || pathname.startsWith('/category/')
+      href: '/categories', 
+      active: pathname === '/categories' || pathname.startsWith('/categories/')
+    },
+    { 
+      icon: <CreditCard size={22} />, 
+      label: 'Payment Mode', 
+      href: '/payment-mode', 
+      active: pathname === '/payment-mode' || pathname.startsWith('/payment-mode/')
     },
     // { icon: <Bell size={22} />, label: 'Notifications', href: '/notifications', badge: '5', active: pathname === '/notifications' }
   ];
